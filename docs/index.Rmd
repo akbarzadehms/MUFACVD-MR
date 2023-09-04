@@ -1,0 +1,1687 @@
+---
+title: "Supplementary Material of the paper entitled:"
+subtitle: "Causality of Genetically Determined Monounsaturated Fatty Acids on Risk of Cardiovascular Disease: A Mendelian Randomization Study"
+author: 
+- name: "Created by Mahdi Akbarzadeh (Email: akbarzadeh.ms@gmail.com),  and Danial Habibi"
+date: "`r Sys.Date()`"
+fontsize: 30pt  
+output: 
+  rmarkdown::html_document:
+    theme: journal
+---
+
+
+```{r setup, include=FALSE, echo=FALSE,}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Authors list {.tabset}
+
+1.  Danial Habibi	
+2.	Mahdi Akbarzadeh 
+3.	Farshad Teymoori
+4.	Sahand Tehrani Fateh 
+5.	Sajedeh Masjoudi
+6.  Amir Hossein Saeidian
+7.	Farhad Hosseinpanah
+8.	Noushin Mosavi
+9.	Hakon Hakonarson
+10.	Fereidoun Azizi
+11.	Alireza Soleymani T
+12. Mehdi Hedayati
+13.	Maryam Sadat Daneshpour
+14.	Marjan Mansourian
+
+
+* **Abbreviations:** (Follow tabs by these terms)
+  + **MUFA :** Monounsaturated Fatty Acids 
+  + **ANG :** Angina - Chest Pain
+  + **ASCVD :** Atherosclerotic Cardiovascular Diseases
+  + **IHD :** Ischemic heart disease
+  + **MI :** Myocardial Infarction 
+  + **HTN :** Hypertension
+  + **CVD :** Cardiovascular Disease
+
+## [ANG]
+
+
+
+###  Introduction
+
+* **Title:** Investigating the causality between **Monounsaturated Fatty Acids on Cardiovascular Disease**
+
+    + Exposure: Monounsaturated Fatty Acids, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/)
+    + **Sample size**: 461,880 
+    + Outcome: Angina, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/) 
+    + **Sample size**: 461,880 , **Number of cases**: 14,828  , **Number of controls**: 447,052  
+    + Ancestry: **European** 
+     + Outcome: Atherosclerotic, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-1668](https://gwas.mrcieu.ac.uk/datasets/ukb-b-1668/) 
+    + **Sample size**: 463,010 , **Number of cases**: 12,171  , **Number of controls**: 450,839  
+    + Ancestry: **European** 
+     + Outcome: Ischemic heart disease, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-d-I9_IHD](https://gwas.mrcieu.ac.uk/datasets/ukb-d-I9_IHD/) 
+    + **Sample size**: 361,194 , **Number of cases**: 20,857  , **Number of controls**: 340,337  
+    + Ancestry: **European** 
+     + Outcome: Myocardial infarction, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-15829](https://gwas.mrcieu.ac.uk/datasets/ukb-b-15829/) 
+    + **Sample size**: 462,933 , **Number of cases**: 10,616  , **Number of controls**: 452,317  
+    + Ancestry: **European** 
+     + Outcome: High blood pressure, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-14177](https://gwas.mrcieu.ac.uk/datasets/ukb-b-14177/) 
+    + **Sample size**: 461,880 , **Number of cases**: 124,227  , **Number of controls**: 337,653  
+    + Ancestry: **European** 
+    
+```{r setwd and packages,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+rm(list=ls())
+library(TwoSampleMR)
+library(MRPracticals)
+library(phenoscanner)
+library(MRPRESSO)
+library(data.table)
+library(writexl)
+library(MendelianRandomization)
+```
+
+###  Data Preparation
+
+1- **Number of total SNPs in exposure:** 12,321,875 SNPs
+
+2- **Number of Selected SNPs exposure:** 44 SNPs
+
+3- **Number of total SNPs in outcome**: 9,851,867 SNPs
+
+4- **Number of common variants between exposure and outcome**: 37 SNPs
+
+5- **Number of SNPs after harmonization (action=2) ** = 36 SNPs 
+
+6- **Number of SNPs after removing HLA region with exploring in [HLA Genes, Nomenclature](https://hla.alleles.org/genes/index.html)** = 36 SNPs 
+
+7- **Number of SNPs after removing those that have MAF < 0.01** = 36 SNPs 
+
+8- Checking pleiotropy by [PhenoScanner](http://www.phenoscanner.medschl.cam.ac.uk/):
+
+How many SNPs have been eliminated after checking the PhenoScanner website: 4 SNPs (rs115849089, rs1260326, rs429358, and rs56289821)
+
+
+
+###  Checking weakness of the instruments
+
+```{r Checking weekness of Angina,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(data.table)
+data <- fread("ExposureInputAngina.txt")
+data$F<-(data$beta.exposure/data$se.exposure)^2
+summary(data$F)
+```
+How many SNPs have been eliminated with checking the weakness: 0 SNP
+
+
+###  RUN an initial MR:
+
+```{r RUN an initial MR (Angina),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(TwoSampleMR)
+library(data.table)
+data<-fread("ExposureInputAngina.txt")
+res<-mr(data)
+knitr::kable(res, align = "lc", caption = "Initial MR analysis")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)	
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Testing Outlier with PRESSO test
+
+```{r PRESSO (Angina),  message=FALSE, warning=FALSE}
+
+#Radial test
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputAngina.txt")
+data <- as.data.frame(data)
+
+library(MRPRESSO)
+mr_presso(BetaOutcome = "beta.outcome", BetaExposure = "beta.exposure", SdOutcome = "se.outcome", SdExposure = "se.exposure",OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = data, NbDistribution =1000,  SignifThreshold = 0.05)
+
+data <- subset(data, SNP!= "rs591592")
+paste0("One SNP (rs591592) were detected by MRPRESSO and excluded for further analyses")
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+###  Radial test
+
+```{r Radial (Angina),  message=FALSE, warning=FALSE}
+#Radial test: 
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputAngina.txt")
+data <- as.data.frame(data)
+
+radial_data<-format_radial(data$beta.exposure, data$beta.outcome,
+                           data$se.exposure, data$se.outcome,
+                           data$SNP)
+ivw_model<-ivw_radial(radial_data, 0.05/nrow(radial_data),3,0.0001)
+ivw_model$outliers
+
+data <- subset(data, SNP!= "rs964184")
+paste0("One SNP (rs964184) were detected by Radial and excluded for further analyses")
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Cook's distance
+
+In statistics, Cook's distance or Cook's D is a commonly used estimate of the influence of a data point when performing a least-squares regression analysis.[1] In a practical ordinary least squares analysis, Cook's distance can be used in several ways:
+
+1- To indicate influential data points that are particularly worth checking for validity.
+
+2- To indicate regions of the design space where it would be good to be able to obtain more data points. 
+
+**It is named after the American statistician R. Dennis Cook, who introduced the concept in 1977.**
+
+[Refernce](https://link.springer.com/article/10.1007/s10654-017-0255-x)
+
+```{r Cook distance (Angina),, message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputAngina.txt")
+data <- as.data.frame(data)
+
+par(mfrow = c(2, 2))
+plot(lm(data$beta.outcome~data$beta.exposure-1, weights=data$se.outcome^-2))
+
+
+```
+
+
+
+
+###  Run After deleting new outlier: Final Results:
+
+```{r Final Results (Angina),,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookAngina.txt")
+
+data <- subset(data, SNP!= "rs10152355" & SNP!="rs591592" & SNP!="rs77548999"& SNP!="rs1860356") 
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after deleting outliers")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data); p1[[1]]
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Sensitivity analyses with MendelianRandomization Package
+
+```{r MendelianRandomization (Angina),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookAngina.txt")
+
+MRInputObject <- mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome)
+IVWObject <- mr_ivw(MRInputObject,
+                    model = "default",
+                    robust = FALSE,
+                    penalized = FALSE,
+                    correl = FALSE,
+                    weights = "simple",
+                    psi = 0,
+                    distribution = "normal",
+                    alpha = 0.05)
+IVWObject
+
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
+MRAllObject_all
+mr_plot(MRAllObject_all)
+
+mr_forest(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+          snp_estimates=FALSE,
+          methods = c("ivw", "median", "wmedian", "egger", "maxlik", "mbe"))
+###########
+data$samplesize.exposure <- "417580"
+data$samplesize.outcome <- "494577"
+data$samplesize.exposure <- as.numeric(data$samplesize.exposure)
+data$samplesize.outcome <- as.numeric(data$samplesize.outcome)
+
+out <- directionality_test(data)
+knitr::kable(out)
+
+mr_steiger(
+  p_exp = data$pval.exposure, 
+  p_out = data$pval.outcome, 
+  n_exp = data$samplesize.exposure, 
+  n_out = data$samplesize.outcome, 
+  r_xxo = 1, 
+  r_yyo = 1,
+  r_exp=0,
+  r_out = 0.5
+)
+```
+
+###  Working with  MRraps
+
+```{r MRraps (Angina),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookAngina.txt")
+
+library(mr.raps)
+mr.raps.simple(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome, diagnosis = FALSE)
+mr.raps.all(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome)
+#mr_lasso(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_cML(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), MA = TRUE, DP = FALSE, n = 417580)
+mr_divw(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_mbe(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), weighting="weighted", stderror="delta",iterations=100)
+mr_funnel(MRInputObject, CI = TRUE)
+mr_plot(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+        error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
+```
+
+
+## [ASCVD]
+
+###  Introduction
+
+* **Title:** Investigating the causality between **Monounsaturated Fatty Acids on Cardiovascular Disease**
+
+    + Exposure: Monounsaturated Fatty Acids, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/)
+    + **Sample size**: 461,880 
+    + Outcome: Angina, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/) 
+    + **Sample size**: 461,880 , **Number of cases**: 14,828  , **Number of controls**: 447,052  
+    + Ancestry: **European** 
+     + Outcome: Atherosclerotic, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-1668](https://gwas.mrcieu.ac.uk/datasets/ukb-b-1668/) 
+    + **Sample size**: 463,010 , **Number of cases**: 12,171  , **Number of controls**: 450,839  
+    + Ancestry: **European** 
+     + Outcome: Ischemic heart disease, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-d-I9_IHD](https://gwas.mrcieu.ac.uk/datasets/ukb-d-I9_IHD/) 
+    + **Sample size**: 361,194 , **Number of cases**: 20,857  , **Number of controls**: 340,337  
+    + Ancestry: **European** 
+     + Outcome: Myocardial infarction, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-15829](https://gwas.mrcieu.ac.uk/datasets/ukb-b-15829/) 
+    + **Sample size**: 462,933 , **Number of cases**: 10,616  , **Number of controls**: 452,317  
+    + Ancestry: **European** 
+     + Outcome: High blood pressure, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-14177](https://gwas.mrcieu.ac.uk/datasets/ukb-b-14177/) 
+    + **Sample size**: 461,880 , **Number of cases**: 124,227  , **Number of controls**: 337,653  
+    + Ancestry: **European** 
+    
+
+###  Data Preparation
+
+1- **Number of total SNPs in exposure:** 12,321,875 SNPs
+
+2- **Number of Selected SNPs exposure:** 44 SNPs
+
+3- **Number of total SNPs in outcome**: 9,851,867 SNPs
+
+4- **Number of common variants between exposure and outcome**: 36 SNPs
+
+5- **Number of SNPs after harmonization (action=2) ** = 35 SNPs 
+
+6- **Number of SNPs after removing HLA region with exploring in [HLA Genes, Nomenclature](https://hla.alleles.org/genes/index.html)** = 35 SNPs 
+
+7- **Number of SNPs after removing those that have MAF < 0.01** = 35 SNPs 
+
+8- Checking pleiotropy by [PhenoScanner](http://www.phenoscanner.medschl.cam.ac.uk/):
+
+How many SNPs have been eliminated after checking the PhenoScanner website: 0 SNPs 
+
+
+###  Checking weakness of the instruments
+
+```{r Checking weekness,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(data.table)
+data <- fread("ExposureInputAtherosclerotic.txt")
+data$F<-(data$beta.exposure/data$se.exposure)^2
+summary(data$F)
+```
+How many SNPs have been eliminated with checking the weakness: 0 SNP
+
+
+###  RUN an initial MR:
+
+```{r RUN an initial MR,  message=FALSE, warning=FALSE}
+library(TwoSampleMR)
+res<-mr(data)
+knitr::kable(res, align = "lc", caption = "Initial MR analysis")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)	
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Testing Outlier with PRESSO test
+
+```{r PRESSO,  message=FALSE, warning=FALSE}
+
+#Radial test
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputAtherosclerotic.txt")
+data <- as.data.frame(data)
+
+library(MRPRESSO)
+mr_presso(BetaOutcome = "beta.outcome", BetaExposure = "beta.exposure", SdOutcome = "se.outcome", SdExposure = "se.exposure",OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = data, NbDistribution =1000,  SignifThreshold = 0.05)
+
+data <- subset(data, SNP!="rs59014134" & SNP!="rs75117471" & SNP!="rs115849089" & SNP!="rs17092642")
+paste0("Four SNPs (rs59014134, rs75117471, rs115849089, and rs17092642) were detected by MRPRESSO and excluded for further analyses")
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+###  Radial test
+
+```{r Radial,  message=FALSE, warning=FALSE}
+#Radial test: 
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputAtherosclerotic.txt")
+data <- as.data.frame(data)
+
+radial_data<-format_radial(data$beta.exposure, data$beta.outcome,
+                           data$se.exposure, data$se.outcome,
+                           data$SNP)
+ivw_model<-ivw_radial(radial_data, 0.05/nrow(radial_data),3,0.0001)
+ivw_model$outliers
+
+data <- subset(data, SNP!="rs2642636" & SNP!="rs429358" & SNP!="rs56289821")
+paste0("Three SNPs (rs2642636, rs429358, and rs56289821) were detected by Radial and excluded for further analyses")
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Cook's distance
+
+In statistics, Cook's distance or Cook's D is a commonly used estimate of the influence of a data point when performing a least-squares regression analysis.[1] In a practical ordinary least squares analysis, Cook's distance can be used in several ways:
+
+1- To indicate influential data points that are particularly worth checking for validity.
+
+2- To indicate regions of the design space where it would be good to be able to obtain more data points. 
+
+**It is named after the American statistician R. Dennis Cook, who introduced the concept in 1977.**
+
+[Refernce](https://link.springer.com/article/10.1007/s10654-017-0255-x)
+
+```{r Cook distance,, message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputAtherosclerotic.txt")
+data <- as.data.frame(data)
+
+par(mfrow = c(2, 2))
+plot(lm(data$beta.outcome~data$beta.exposure-1, weights=data$se.outcome^-2))
+
+
+```
+
+
+
+
+###  Run After deleting new outlier: Final Results:
+
+```{r Final Results,,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputRadialAtherosclerotic.txt")
+
+data <- subset(data, SNP!= "rs2642636" & SNP!="rs429358" & SNP!="rs56289821") 
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after deleting outliers")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data); p1[[1]]
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Sensitivity analyses with MendelianRandomization Package
+
+```{r MendelianRandomization,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputRadialAtherosclerotic.txt")
+
+MRInputObject <- mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome)
+IVWObject <- mr_ivw(MRInputObject,
+                    model = "default",
+                    robust = FALSE,
+                    penalized = FALSE,
+                    correl = FALSE,
+                    weights = "simple",
+                    psi = 0,
+                    distribution = "normal",
+                    alpha = 0.05)
+IVWObject
+
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
+MRAllObject_all
+mr_plot(MRAllObject_all)
+
+mr_forest(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+          snp_estimates=FALSE,
+          methods = c("ivw", "median", "wmedian", "egger", "maxlik", "mbe"))
+###########
+data$samplesize.exposure <- "417580"
+data$samplesize.outcome <- "494577"
+data$samplesize.exposure <- as.numeric(data$samplesize.exposure)
+data$samplesize.outcome <- as.numeric(data$samplesize.outcome)
+
+out <- directionality_test(data)
+knitr::kable(out)
+
+mr_steiger(
+  p_exp = data$pval.exposure, 
+  p_out = data$pval.outcome, 
+  n_exp = data$samplesize.exposure, 
+  n_out = data$samplesize.outcome, 
+  r_xxo = 1, 
+  r_yyo = 1,
+  r_exp=0,
+  r_out = 0.5
+)
+```
+
+###  Working with  MRraps
+
+```{r MRraps,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputRadialAtherosclerotic.txt")
+
+library(mr.raps)
+mr.raps.simple(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome, diagnosis = FALSE)
+mr.raps.all(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome)
+#mr_lasso(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_cML(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), MA = TRUE, DP = FALSE, n = 417580)
+mr_divw(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_mbe(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), weighting="weighted", stderror="delta",iterations=100)
+mr_funnel(MRInputObject, CI = TRUE)
+mr_plot(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+        error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
+```
+
+## [IHD]
+
+###  Introduction
+
+* **Title:** Investigating the causality between **Monounsaturated Fatty Acids on Cardiovascular Disease**
+
+    + Exposure: Monounsaturated Fatty Acids, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/)
+    + **Sample size**: 461,880 
+    + Outcome: Angina, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/) 
+    + **Sample size**: 461,880 , **Number of cases**: 14,828  , **Number of controls**: 447,052  
+    + Ancestry: **European** 
+     + Outcome: Atherosclerotic, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-1668](https://gwas.mrcieu.ac.uk/datasets/ukb-b-1668/) 
+    + **Sample size**: 463,010 , **Number of cases**: 12,171  , **Number of controls**: 450,839  
+    + Ancestry: **European** 
+     + Outcome: Ischemic heart disease, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-d-I9_IHD](https://gwas.mrcieu.ac.uk/datasets/ukb-d-I9_IHD/) 
+    + **Sample size**: 361,194 , **Number of cases**: 20,857  , **Number of controls**: 340,337  
+    + Ancestry: **European** 
+     + Outcome: Myocardial infarction, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-15829](https://gwas.mrcieu.ac.uk/datasets/ukb-b-15829/) 
+    + **Sample size**: 462,933 , **Number of cases**: 10,616  , **Number of controls**: 452,317  
+    + Ancestry: **European** 
+     + Outcome: High blood pressure, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-14177](https://gwas.mrcieu.ac.uk/datasets/ukb-b-14177/) 
+    + **Sample size**: 461,880 , **Number of cases**: 124,227  , **Number of controls**: 337,653  
+    + Ancestry: **European** 
+    
+
+###  Data Preparation
+
+1- **Number of total SNPs in exposure:** 12,321,875 SNPs
+
+2- **Number of Selected SNPs exposure:** 44 SNPs
+
+3- **Number of total SNPs in outcome**: 13,586,589 SNPs
+
+4- **Number of common variants between exposure and outcome**: 44 SNPs
+
+5- **Number of SNPs after harmonization (action=2) ** = 42 SNPs 
+
+6- **Number of SNPs after removing HLA region with exploring in [HLA Genes, Nomenclature](https://hla.alleles.org/genes/index.html)** = 42 SNPs 
+
+7- **Number of SNPs after removing those that have MAF < 0.01** = 42 SNPs 
+
+8- Checking pleiotropy by [PhenoScanner](http://www.phenoscanner.medschl.cam.ac.uk/):
+
+How many SNPs have been eliminated after checking the PhenoScanner website: 4 SNPs (rs429358, rs56289821, and rs964184)
+
+
+
+###  Checking weakness of the instruments
+
+```{r Checking weekness of IHD,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(data.table)
+data <- fread("ExposureInputAngina.txt")
+data$F<-(data$beta.exposure/data$se.exposure)^2
+summary(data$F)
+```
+How many SNPs have been eliminated with checking the weakness: 0 SNP
+
+
+###  RUN an initial MR:
+
+```{r RUN an initial MR (IHD),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(TwoSampleMR)
+library(data.table)
+data<-fread("ExposureInputIHD.txt")
+res<-mr(data)
+knitr::kable(res, align = "lc", caption = "Initial MR analysis")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)	
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Testing Outlier with PRESSO test
+
+```{r PRESSO (IHD),  message=FALSE, warning=FALSE}
+
+#Radial test
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputIHD.txt")
+data <- as.data.frame(data)
+
+library(MRPRESSO)
+mr_presso(BetaOutcome = "beta.outcome", BetaExposure = "beta.exposure", SdOutcome = "se.outcome", SdExposure = "se.exposure",OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = data, NbDistribution =1000,  SignifThreshold = 0.05)
+
+data <- subset(data, SNP!= "rs115849089")
+paste0("One SNP (rs115849089) were detected by MRPRESSO and excluded for further analyses")
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+###  Radial test
+
+```{r Radial (IHD),  message=FALSE, warning=FALSE}
+#Radial test: 
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputIHD.txt")
+data <- as.data.frame(data)
+
+radial_data<-format_radial(data$beta.exposure, data$beta.outcome,
+                           data$se.exposure, data$se.outcome,
+                           data$SNP)
+ivw_model<-ivw_radial(radial_data, 0.05/nrow(radial_data),3,0.0001)
+ivw_model$outliers
+
+data <- subset(data, SNP!= "rs115849089")
+paste0("One SNP (rs115849089) were detected by Radial and excluded for further analyses")
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Cook's distance
+
+In statistics, Cook's distance or Cook's D is a commonly used estimate of the influence of a data point when performing a least-squares regression analysis.[1] In a practical ordinary least squares analysis, Cook's distance can be used in several ways:
+
+1- To indicate influential data points that are particularly worth checking for validity.
+
+2- To indicate regions of the design space where it would be good to be able to obtain more data points. 
+
+**It is named after the American statistician R. Dennis Cook, who introduced the concept in 1977.**
+
+[Refernce](https://link.springer.com/article/10.1007/s10654-017-0255-x)
+
+```{r Cook distance (IHD),, message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputIHD.txt")
+data <- as.data.frame(data)
+
+par(mfrow = c(2, 2))
+plot(lm(data$beta.outcome~data$beta.exposure-1, weights=data$se.outcome^-2))
+
+
+```
+
+
+
+
+###  Run After deleting new outlier: Final Results:
+
+```{r Final Results (IHD),,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookIHD.txt")
+
+data <- subset(data, SNP!= "rs12185072" & SNP!="rs174418" & SNP!="rs115849089") 
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after deleting outliers")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data); p1[[1]]
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Sensitivity analyses with MendelianRandomization Package
+
+```{r MendelianRandomization (IHD),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookIHD.txt")
+
+MRInputObject <- mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome)
+IVWObject <- mr_ivw(MRInputObject,
+                    model = "default",
+                    robust = FALSE,
+                    penalized = FALSE,
+                    correl = FALSE,
+                    weights = "simple",
+                    psi = 0,
+                    distribution = "normal",
+                    alpha = 0.05)
+IVWObject
+
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
+MRAllObject_all
+mr_plot(MRAllObject_all)
+
+mr_forest(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+          snp_estimates=FALSE,
+          methods = c("ivw", "median", "wmedian", "egger", "maxlik", "mbe"))
+###########
+data$samplesize.exposure <- "417580"
+data$samplesize.outcome <- "494577"
+data$samplesize.exposure <- as.numeric(data$samplesize.exposure)
+data$samplesize.outcome <- as.numeric(data$samplesize.outcome)
+
+out <- directionality_test(data)
+knitr::kable(out)
+
+mr_steiger(
+  p_exp = data$pval.exposure, 
+  p_out = data$pval.outcome, 
+  n_exp = data$samplesize.exposure, 
+  n_out = data$samplesize.outcome, 
+  r_xxo = 1, 
+  r_yyo = 1,
+  r_exp=0,
+  r_out = 0.5
+)
+```
+
+###  Working with  MRraps
+
+```{r MRraps (IHD),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookIHD.txt")
+
+library(mr.raps)
+mr.raps.simple(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome, diagnosis = FALSE)
+mr.raps.all(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome)
+mr_lasso(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_cML(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), MA = TRUE, DP = FALSE, n = 417580)
+mr_divw(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_mbe(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), weighting="weighted", stderror="delta",iterations=100)
+mr_funnel(MRInputObject, CI = TRUE)
+mr_plot(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+        error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
+```
+
+
+## [MI]
+
+###  Introduction
+
+* **Title:** Investigating the causality between **Monounsaturated Fatty Acids on Cardiovascular Disease**
+
+    + Exposure: Monounsaturated Fatty Acids, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/)
+    + **Sample size**: 461,880 
+    + Outcome: Angina, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/) 
+    + **Sample size**: 461,880 , **Number of cases**: 14,828  , **Number of controls**: 447,052  
+    + Ancestry: **European** 
+     + Outcome: Atherosclerotic, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-1668](https://gwas.mrcieu.ac.uk/datasets/ukb-b-1668/) 
+    + **Sample size**: 463,010 , **Number of cases**: 12,171  , **Number of controls**: 450,839  
+    + Ancestry: **European** 
+     + Outcome: Ischemic heart disease, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-d-I9_IHD](https://gwas.mrcieu.ac.uk/datasets/ukb-d-I9_IHD/) 
+    + **Sample size**: 361,194 , **Number of cases**: 20,857  , **Number of controls**: 340,337  
+    + Ancestry: **European** 
+     + Outcome: Myocardial infarction, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-15829](https://gwas.mrcieu.ac.uk/datasets/ukb-b-15829/) 
+    + **Sample size**: 462,933 , **Number of cases**: 10,616  , **Number of controls**: 452,317  
+    + Ancestry: **European** 
+     + Outcome: High blood pressure, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-14177](https://gwas.mrcieu.ac.uk/datasets/ukb-b-14177/) 
+    + **Sample size**: 461,880 , **Number of cases**: 124,227  , **Number of controls**: 337,653  
+    + Ancestry: **European** 
+    
+
+###  Data Preparation
+
+1- **Number of total SNPs in exposure:** 12,321,875 SNPs
+
+2- **Number of Selected SNPs exposure:** 44 SNPs
+
+3- **Number of total SNPs in outcome**: 9,851,867 SNPs
+
+4- **Number of common variants between exposure and outcome**: 34 SNPs
+
+5- **Number of SNPs after harmonization (action=2) ** = 33 SNPs 
+
+6- **Number of SNPs after removing HLA region with exploring in [HLA Genes, Nomenclature](https://hla.alleles.org/genes/index.html)** = 33 SNPs 
+
+7- **Number of SNPs after removing those that have MAF < 0.01** = 33 SNPs 
+
+8- Checking pleiotropy by [PhenoScanner](http://www.phenoscanner.medschl.cam.ac.uk/):
+
+How many SNPs have been eliminated after checking the PhenoScanner website: 4 SNPs (rs429358, rs429358, rs56289821, and rs964184)
+
+
+
+###  Checking weakness of the instruments
+
+```{r Checking weekness of MI,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(data.table)
+data <- fread("ExposureInputMI.txt")
+data$F<-(data$beta.exposure/data$se.exposure)^2
+summary(data$F)
+```
+How many SNPs have been eliminated with checking the weakness: 0 SNP
+
+
+###  RUN an initial MR:
+
+```{r RUN an initial MR (MI),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(TwoSampleMR)
+library(data.table)
+data<-fread("ExposureInputMI.txt")
+res<-mr(data)
+knitr::kable(res, align = "lc", caption = "Initial MR analysis")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)	
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Testing Outlier with PRESSO test
+
+```{r PRESSO (MI),  message=FALSE, warning=FALSE}
+
+#Radial test
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputMI.txt")
+data <- as.data.frame(data)
+
+library(MRPRESSO)
+mr_presso(BetaOutcome = "beta.outcome", BetaExposure = "beta.exposure", SdOutcome = "se.outcome", SdExposure = "se.exposure",OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = data, NbDistribution =1000,  SignifThreshold = 0.05)
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+###  Radial test
+
+```{r Radial (MI),  message=FALSE, warning=FALSE}
+#Radial test: 
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputMI.txt")
+data <- as.data.frame(data)
+
+radial_data<-format_radial(data$beta.exposure, data$beta.outcome,
+                           data$se.exposure, data$se.outcome,
+                           data$SNP)
+ivw_model<-ivw_radial(radial_data, 0.05/nrow(radial_data),3,0.0001)
+ivw_model$outliers
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Cook's distance
+
+In statistics, Cook's distance or Cook's D is a commonly used estimate of the influence of a data point when performing a least-squares regression analysis.[1] In a practical ordinary least squares analysis, Cook's distance can be used in several ways:
+
+1- To indicate influential data points that are particularly worth checking for validity.
+
+2- To indicate regions of the design space where it would be good to be able to obtain more data points. 
+
+**It is named after the American statistician R. Dennis Cook, who introduced the concept in 1977.**
+
+[Refernce](https://link.springer.com/article/10.1007/s10654-017-0255-x)
+
+```{r Cook distance (MI),, message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputMI.txt")
+data <- as.data.frame(data)
+
+par(mfrow = c(2, 2))
+plot(lm(data$beta.outcome~data$beta.exposure-1, weights=data$se.outcome^-2))
+
+
+```
+
+
+
+
+###  Run After deleting new outlier: Final Results:
+
+```{r Final Results (MI),,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookMI.txt")
+
+data <- subset(data, SNP!= "rs115849089" & SNP!="rs174418" & SNP!="rs75117471") 
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after deleting outliers")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data); p1[[1]]
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Sensitivity analyses with MendelianRandomization Package
+
+```{r MendelianRandomization (MI),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookMI.txt")
+
+MRInputObject <- mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome)
+IVWObject <- mr_ivw(MRInputObject,
+                    model = "default",
+                    robust = FALSE,
+                    penalized = FALSE,
+                    correl = FALSE,
+                    weights = "simple",
+                    psi = 0,
+                    distribution = "normal",
+                    alpha = 0.05)
+IVWObject
+
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
+MRAllObject_all
+mr_plot(MRAllObject_all)
+
+mr_forest(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+          snp_estimates=FALSE,
+          methods = c("ivw", "median", "wmedian", "egger", "maxlik", "mbe"))
+###########
+data$samplesize.exposure <- "417580"
+data$samplesize.outcome <- "494577"
+data$samplesize.exposure <- as.numeric(data$samplesize.exposure)
+data$samplesize.outcome <- as.numeric(data$samplesize.outcome)
+
+out <- directionality_test(data)
+knitr::kable(out)
+
+mr_steiger(
+  p_exp = data$pval.exposure, 
+  p_out = data$pval.outcome, 
+  n_exp = data$samplesize.exposure, 
+  n_out = data$samplesize.outcome, 
+  r_xxo = 1, 
+  r_yyo = 1,
+  r_exp=0,
+  r_out = 0.5
+)
+```
+
+###  Working with  MRraps
+
+```{r MRraps (MI),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookMI.txt")
+
+library(mr.raps)
+mr.raps.simple(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome, diagnosis = FALSE)
+mr.raps.all(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome)
+mr_lasso(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_cML(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), MA = TRUE, DP = FALSE, n = 417580)
+mr_divw(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_mbe(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), weighting="weighted", stderror="delta",iterations=100)
+mr_funnel(MRInputObject, CI = TRUE)
+mr_plot(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+        error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
+```
+
+
+## [HTN]
+
+###  Introduction
+
+* **Title:** Investigating the causality between **Monounsaturated Fatty Acids on Cardiovascular Disease**
+
+    + Exposure: Monounsaturated Fatty Acids, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/)
+    + **Sample size**: 461,880 
+    + Outcome: Angina, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-8468](https://gwas.mrcieu.ac.uk/datasets/ukb-b-8468/) 
+    + **Sample size**: 461,880 , **Number of cases**: 14,828  , **Number of controls**: 447,052  
+    + Ancestry: **European** 
+     + Outcome: Atherosclerotic, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-1668](https://gwas.mrcieu.ac.uk/datasets/ukb-b-1668/) 
+    + **Sample size**: 463,010 , **Number of cases**: 12,171  , **Number of controls**: 450,839  
+    + Ancestry: **European** 
+     + Outcome: Ischemic heart disease, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-d-I9_IHD](https://gwas.mrcieu.ac.uk/datasets/ukb-d-I9_IHD/) 
+    + **Sample size**: 361,194 , **Number of cases**: 20,857  , **Number of controls**: 340,337  
+    + Ancestry: **European** 
+     + Outcome: Myocardial infarction, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-15829](https://gwas.mrcieu.ac.uk/datasets/ukb-b-15829/) 
+    + **Sample size**: 462,933 , **Number of cases**: 10,616  , **Number of controls**: 452,317  
+    + Ancestry: **European** 
+     + Outcome: High blood pressure, Data downloaded from [IEU OpenGWAS project Database](https://gwas.mrcieu.ac.uk/) | GWAS ID: [ukb-b-14177](https://gwas.mrcieu.ac.uk/datasets/ukb-b-14177/) 
+    + **Sample size**: 461,880 , **Number of cases**: 124,227  , **Number of controls**: 337,653  
+    + Ancestry: **European** 
+    
+
+###  Data Preparation
+
+1- **Number of total SNPs in exposure:** 12,321,875 SNPs
+
+2- **Number of Selected SNPs exposure:** 44 SNPs
+
+3- **Number of total SNPs in outcome**: 9,851,867 SNPs
+
+4- **Number of common variants between exposure and outcome**: 40 SNPs
+
+5- **Number of SNPs after harmonization (action=2) ** = 40 SNPs 
+
+6- **Number of SNPs after removing HLA region with exploring in [HLA Genes, Nomenclature](https://hla.alleles.org/genes/index.html)** = 40 SNPs 
+
+7- **Number of SNPs after removing those that have MAF < 0.01** = 40 SNPs 
+
+8- Checking pleiotropy by [PhenoScanner](http://www.phenoscanner.medschl.cam.ac.uk/):
+
+How many SNPs have been eliminated after checking the PhenoScanner website: 4 SNPs (rs1554903 and rs429358)
+
+
+
+###  Checking weakness of the instruments
+
+```{r Checking weekness of BP,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(data.table)
+data <- fread("ExposureInputBP.txt")
+data$F<-(data$beta.exposure/data$se.exposure)^2
+summary(data$F)
+```
+How many SNPs have been eliminated with checking the weakness: 0 SNP
+
+
+###  RUN an initial MR:
+
+```{r RUN an initial MR (BP),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD") 
+library(TwoSampleMR)
+library(data.table)
+data<-fread("ExposureInputBP.txt")
+res<-mr(data)
+knitr::kable(res, align = "lc", caption = "Initial MR analysis")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)	
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Testing Outlier with PRESSO test
+
+```{r PRESSO (BP),  message=FALSE, warning=FALSE}
+
+#Radial test
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputBP.txt")
+data <- as.data.frame(data)
+
+library(MRPRESSO)
+mr_presso(BetaOutcome = "beta.outcome", BetaExposure = "beta.exposure", SdOutcome = "se.outcome", SdExposure = "se.exposure",OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = data, NbDistribution =1000,  SignifThreshold = 0.05)
+
+data<-subset(data, SNP!="rs77548999")
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+###  Radial test
+
+```{r Radial (BP),  message=FALSE, warning=FALSE}
+#Radial test: 
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputBP.txt")
+data <- as.data.frame(data)
+
+radial_data<-format_radial(data$beta.exposure, data$beta.outcome,
+                           data$se.exposure, data$se.outcome,
+                           data$SNP)
+ivw_model<-ivw_radial(radial_data, 0.05/nrow(radial_data),3,0.0001)
+ivw_model$outliers
+
+data<-subset(data, SNP!="rs7123454" & SNP!="rs8107974")
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after excluding SNPs detected by MRPRESSO")
+
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data)
+p1[[1]]
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Cook's distance
+
+In statistics, Cook's distance or Cook's D is a commonly used estimate of the influence of a data point when performing a least-squares regression analysis.[1] In a practical ordinary least squares analysis, Cook's distance can be used in several ways:
+
+1- To indicate influential data points that are particularly worth checking for validity.
+
+2- To indicate regions of the design space where it would be good to be able to obtain more data points. 
+
+**It is named after the American statistician R. Dennis Cook, who introduced the concept in 1977.**
+
+[Refernce](https://link.springer.com/article/10.1007/s10654-017-0255-x)
+
+```{r Cook distance (BP),, message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputBP.txt")
+data <- as.data.frame(data)
+
+par(mfrow = c(2, 2))
+plot(lm(data$beta.outcome~data$beta.exposure-1, weights=data$se.outcome^-2))
+
+
+```
+
+
+
+
+###  Run After deleting new outlier: Final Results:
+
+```{r Final Results (BP),,  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookBP.txt")
+
+data <- subset(data, SNP!= "rs7123454" & SNP!="rs8107974" & SNP!="rs964184") 
+
+res<-mr(data)
+
+knitr::kable(res, align = "lc", caption = "MR analysis after deleting outliers")
+plot(data$beta.exposure,data$beta.outcome)
+text(data$beta.exposure,                                
+     data$beta.outcome,
+     labels = data$SNP,
+     pos = 4)
+
+
+#Heterogeneity testing
+mr_heterogeneity<- mr_heterogeneity(data); 
+knitr::kable(mr_heterogeneity, align = "lc", caption = "Heterogeneity testing")
+
+#pleiotropy testing
+mr_pleiotropy_test<- mr_pleiotropy_test(data); 
+knitr::kable(mr_pleiotropy_test, align = "lc", caption = "pleiotropy testing")
+
+#scatter plot
+p1 <- mr_scatter_plot(res, data); p1[[1]]
+
+#plot of single SNP MR:
+res_single <- mr_singlesnp(data); p2 <- mr_forest_plot(res_single); p2[[1]]
+
+#plot of LOO:
+res_loo <- mr_leaveoneout(data); p3 <- mr_leaveoneout_plot(res_loo); p3[[1]]
+
+#Funnel plot
+p4 <- mr_funnel_plot(res_single); p4[[1]]
+```
+
+
+
+###  Sensitivity analyses with MendelianRandomization Package
+
+```{r MendelianRandomization (BP),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookBP.txt")
+
+MRInputObject <- mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome)
+IVWObject <- mr_ivw(MRInputObject,
+                    model = "default",
+                    robust = FALSE,
+                    penalized = FALSE,
+                    correl = FALSE,
+                    weights = "simple",
+                    psi = 0,
+                    distribution = "normal",
+                    alpha = 0.05)
+IVWObject
+
+MRAllObject_all <- mr_allmethods(MRInputObject, method = "all")
+MRAllObject_all
+mr_plot(MRAllObject_all)
+
+mr_forest(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+          snp_estimates=FALSE,
+          methods = c("ivw", "median", "wmedian", "egger", "maxlik", "mbe"))
+###########
+data$samplesize.exposure <- "417580"
+data$samplesize.outcome <- "494577"
+data$samplesize.exposure <- as.numeric(data$samplesize.exposure)
+data$samplesize.outcome <- as.numeric(data$samplesize.outcome)
+
+out <- directionality_test(data)
+knitr::kable(out)
+
+mr_steiger(
+  p_exp = data$pval.exposure, 
+  p_out = data$pval.outcome, 
+  n_exp = data$samplesize.exposure, 
+  n_out = data$samplesize.outcome, 
+  r_xxo = 1, 
+  r_yyo = 1,
+  r_exp=0,
+  r_out = 0.5
+)
+```
+
+###  Working with  MRraps
+
+```{r MRraps (BP),  message=FALSE, warning=FALSE}
+setwd("D:\\MR-Projects\\MUFA and CVD\\rMarkDown mufaCVD")  
+data <- fread("ExposureInputCookBP.txt")
+
+library(mr.raps)
+mr.raps.simple(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome, diagnosis = FALSE)
+mr.raps.all(data$beta.exposure,data$beta.outcome, data$se.exposure, data$se.outcome)
+mr_lasso(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_cML(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), MA = TRUE, DP = FALSE, n = 417580)
+mr_divw(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome))
+mr_mbe(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome), weighting="weighted", stderror="delta",iterations=100)
+mr_funnel(MRInputObject, CI = TRUE)
+mr_plot(mr_input(bx = data$beta.exposure,bxse = data$se.exposure,by = data$beta.outcome,byse = data$se.outcome),
+        error = TRUE, orientate = FALSE, line = "ivw", interactive = FALSE)
+```
+
+
